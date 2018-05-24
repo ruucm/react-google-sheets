@@ -1,0 +1,16 @@
+{
+    "name": "react-google-sheets",
+    "version": "0.0.1",
+    "description": "Read and Write data using Google Sheets API in react",
+    "author": "ruucm <ruucm.a@gmail.com>",
+    "dependencies": {
+        "camelcase": "@3.0.0",
+        "isomorphic-fetch": "^2.2.1"
+    },
+    "license": "GPLv3",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ruucm/react-google-sheets"
+    },
+    "homepage": "https://github.com/ruucm/react-google-sheets"
+}
