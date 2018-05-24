@@ -6,7 +6,7 @@ Simplely Add Google Sheets API to your react app
 
 ## First, install the library:
 ```shell
-npm install --react-google-sheets
+npm install --save react-google-sheets
 ```
 
 or 
