@@ -1,7 +1,10 @@
 {
     "name": "react-google-sheets",
-    "version": "0.0.1",
+    "version": "0.3.0",
     "description": "Read and Write data using Google Sheets API in react",
+    "scripts": {
+        "dev": "./node_modules/.bin/babel --watch src -d ./"
+    },
     "author": "ruucm <ruucm.a@gmail.com>",
     "dependencies": {
         "camelcase": "5.0.0",
@@ -12,5 +15,12 @@
         "type": "git",
         "url": "https://github.com/ruucm/react-google-sheets"
     },
-    "homepage": "https://github.com/ruucm/react-google-sheets"
+    "homepage": "https://github.com/ruucm/react-google-sheets",
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-preset-env": "^1.7.0",
+        "babel-preset-es2015": "^6.24.1",
+        "babel-preset-react": "^6.24.1",
+        "babel-preset-stage-0": "^6.24.1"
+    }
 }

@@ -1,15 +1,10 @@
-"use strict";
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var fetch = require("isomorphic-fetch");
 var camelCase = require("camelcase");
 // subtituted code of <script src="https://apis.google.com/js/api.js"></script> at index.html
 var gapi = require("./gapi");
 
-function GoogleSheetConnector(options, onLoad) {
-    var _this = this;
 
+function GoogleSheetConnector(options, onLoad) {
     var sheetsData = [];
     this.sheetsLoaded = 0;
     this.apiKey = options.apiKey;
@@ -18,14 +13,14 @@ function GoogleSheetConnector(options, onLoad) {
 
     this.initialise();
 
-    this.getSheetsData = function () {
+    this.getSheetsData = function() {
         return sheetsData.slice();
     };
 
     this.setSheetsData = function (data) {
         sheetsData = data;
 
-        this.sheetsLoaded++;
+        this.sheetsLoaded ++;
 
         if (this.sheetsLoaded === this.numSheets) {
             onDataLoaded.call(this);
@@ -39,44 +34,51 @@ function GoogleSheetConnector(options, onLoad) {
             onLoad.call(this);
         }
     }
-    this.updateCell = function (sheetName, column, row, value, successCallback, errorCallback) {
+    this.updateCell = (sheetName, column, row, value, successCallback, errorCallback) => {
         var data = {
-            spreadsheetId: _this.spreadsheetId,
+            spreadsheetId: this.spreadsheetId,
             range: sheetName + '!' + column + row,
             valueInputOption: 'USER_ENTERED',
-            values: [[value]]
-        };
+            values: [ [value] ]
+        }
         gapi.client.sheets.spreadsheets.values.update(data).then(successCallback, errorCallback);
-    };
+      }
 }
 
 GoogleSheetConnector.prototype = {
 
-    initialise: function initialise() {
+    initialise: function() {
         console.info("Loading data from Spreadsheet");
         if (this.clientId) {
             return gapi.load("client:auth2", this.initClient.bind(this));
         } else if (this.apiKey) {
-            var url = ["https://sheets.googleapis.com/v4/spreadsheets/", this.spreadsheetId, "?key=", this.apiKey].join("");
+            var url = [
+                "https://sheets.googleapis.com/v4/spreadsheets/",
+                this.spreadsheetId,
+                "?key=",
+                this.apiKey
+            ].join("");
 
-            fetch(url).then(function (response) {
-                return response.json();
-            }).then(function (data) {
-                return this.loadSheetsData(data);
-            }.bind(this));
+            fetch(url)
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    return this.loadSheetsData(data);
+                }.bind(this));
         } else {
             console.info("You must specify a valid Client ID or API Key");
         }
     },
 
-    loadSheetsData: function loadSheetsData(data) {
+    loadSheetsData: function(data) {
         this.numSheets = data.sheets.length;
-        data.sheets.forEach(function (sheet) {
+        data.sheets.forEach(function(sheet) {
             return this.loadSheetViaKey(sheet.properties.title);
         }, this);
     },
 
-    loadSpreadsheet: function loadSpreadsheet() {
+    loadSpreadsheet: function() {
         gapi.client.sheets.spreadsheets.get({
             spreadsheetId: this.spreadsheetId
         }).then(function (response) {
@@ -86,31 +88,38 @@ GoogleSheetConnector.prototype = {
         }.bind(this));
     },
 
-    loadSheetViaAuth: function loadSheetViaAuth(sheet) {
+    loadSheetViaAuth: function(sheet) {
         gapi.client.sheets.spreadsheets.values.get({
             spreadsheetId: this.spreadsheetId,
             range: sheet.properties.title
-        }).then(function (response) {
+        }).then(function(response) {
             var values = JSON.parse(response.body).values;
             this.loadSheet(sheet.properties.title, values);
         }.bind(this));
     },
 
-    loadSheetViaKey: function loadSheetViaKey(sheetName) {
-        var url = ["https://sheets.googleapis.com/v4/spreadsheets/", this.spreadsheetId, "/values/", sheetName, "?key=", this.apiKey].join("");
+    loadSheetViaKey: function(sheetName) {
+        var url = [
+            "https://sheets.googleapis.com/v4/spreadsheets/",
+            this.spreadsheetId,
+            "/values/",
+            sheetName,
+            "?key=",
+            this.apiKey
+        ].join("");
 
-        fetch(url).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            var values = json.values;
-            this.loadSheet(sheetName, values);
-        }.bind(this));
+        fetch(url)
+            .then(function(response) { return response.json(); })
+            .then(function(json) {
+                var values = json.values;
+                this.loadSheet(sheetName, values);
+            }.bind(this));
     },
 
-    loadSheet: function loadSheet(sheetName, values) {
+    loadSheet: function(sheetName, values) {
         var headerRow = values[0];
         var dataRows = values.slice(1);
-        var keys = headerRow.map(function (value) {
+        var keys = headerRow.map(function(value) {
             return camelCase(value);
         }, this);
 
@@ -126,10 +135,10 @@ GoogleSheetConnector.prototype = {
         this.setSheetsData(sheetsData);
     },
 
-    loadRowsData: function loadRowsData(keys, values) {
-        return values.map(function (row) {
+    loadRowsData: function(keys, values) {
+        return values.map(function(row) {
 
-            keys.forEach(function (key, i) {
+            keys.forEach(function(key, i) {
                 row[key] = row[i];
             });
 
@@ -137,7 +146,7 @@ GoogleSheetConnector.prototype = {
         });
     },
 
-    initClient: function initClient() {
+    initClient: function() {
         gapi.client.init({
             discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
             clientId: this.clientId,
@@ -145,7 +154,7 @@ GoogleSheetConnector.prototype = {
         }).then(function () {
             var authInstance = gapi.auth2.getAuthInstance();
             if (authInstance.isSignedIn.get()) {
-                this.loadSpreadsheet();
+                this.loadSpreadsheet()
             } else {
                 authInstance.isSignedIn.listen(this.updateSigninStatus.bind(this));
                 authInstance.signIn();
@@ -153,54 +162,54 @@ GoogleSheetConnector.prototype = {
         }.bind(this));
     },
 
-    updateSigninStatus: function updateSigninStatus(isSignedIn) {
+    updateSigninStatus: function(isSignedIn) {
         if (isSignedIn) {
             this.loadSpreadsheet();
         }
     },
 
-    getSheet: function getSheet(sheetName) {
+    getSheet: function(sheetName) {
         return new SheetData(this.getSheetsData(), sheetName);
-    }
+    },
 };
 
 function SheetData(sheetsData, sheetName) {
-    var sheet = sheetsData.find(function (sheet) {
+    var sheet = sheetsData.find(function(sheet) {
         return sheet.name === sheetName;
-    }) || { data: [], values: [] };
+    }) || {data: [], values: []};
 
     this.header = sheet.header;
     this.keys = sheet.keys;
     var data = sheet.data;
     var currentData = data.slice();
 
-    this.getData = function () {
+    this.getData = function() {
         return data.slice();
     };
 
-    this.getCurrentData = function () {
+    this.getCurrentData = function() {
         return currentData.slice();
     };
 
-    this.setCurrentData = function (newData) {
+    this.setCurrentData = function(newData) {
         currentData = newData;
     };
 }
 
 SheetData.prototype = {
-    map: function map(callback) {
+    map: function(callback) {
         return this.getCurrentData().map(callback);
     },
-    filter: function filter(filterObj, strValue) {
-        var newData = this.getData().filter(function (row) {
-            if ((typeof filterObj === "undefined" ? "undefined" : _typeof(filterObj)) === "object") {
+    filter: function(filterObj, strValue) {
+        var newData = this.getData().filter(function(row) {
+            if (typeof filterObj === "object") {
                 for (var i in filterObj) {
                     if (!row.hasOwnProperty(i) || row[i] !== filterObj[i]) {
                         return false;
                     }
                 }
             } else {
-                var colIndex = this.header.indexOf(filterObj);
+                const colIndex = this.header.indexOf(filterObj);
                 if (row[colIndex] !== strValue) return false;
             }
 
@@ -211,17 +220,17 @@ SheetData.prototype = {
 
         return this;
     },
-    group: function group(colName, sort) {
+    group: function(colName, sort) {
         var groups = [];
         var colIndex = this.header.indexOf(colName);
 
         if (colIndex === -1) return this;
 
-        this.getCurrentData().forEach(function (row) {
+        this.getCurrentData().forEach(function(row) {
             var groupName = row[colIndex];
             var groupIndex = -1;
 
-            groups.forEach(function (group, i) {
+            groups.forEach(function(group, i) {
                 if (group.name === groupName) groupIndex = i;
             });
 
@@ -242,10 +251,10 @@ SheetData.prototype = {
 
         return this;
     },
-    sort: function sort(colName) {
+    sort: function(colName) {
         var newData = this.getCurrentData();
         if (this.dataIsGrouped) {
-            newData.forEach(function (group) {
+            newData.forEach(function(group) {
                 sortArray(group.data, camelCase(colName));
             });
         } else {
@@ -255,7 +264,7 @@ SheetData.prototype = {
 
         return this;
     },
-    reverse: function reverse() {
+    reverse: function() {
         var newData = this.getCurrentData();
         newData.reverse();
         this.setCurrentData(newData);
@@ -265,7 +274,7 @@ SheetData.prototype = {
 
 function sortArray(array, orderBy) {
 
-    array.sort(function (a, b) {
+    array.sort(function(a, b) {
         var textA = a[orderBy] ? a[orderBy].toUpperCase() : "";
         var textB = b[orderBy] ? b[orderBy].toUpperCase() : "";
         if (textA < textB) return -1;

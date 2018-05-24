@@ -1,44 +1,79 @@
-import React, { Component } from 'react';
+'use strict';
 
-import GoogleSheetConnector from './google-sheet-connector'
-import { log } from 'ruucm-util'
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.connectToSpreadsheet = exports.ReactGoogleSheets = undefined;
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _googleSheetConnector = require('./google-sheet-connector');
+
+var _googleSheetConnector2 = _interopRequireDefault(_googleSheetConnector);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var googleSheet;
 
 /* Components */
-class ReactGoogleSheets extends Component {
-	componentDidMount() {
-		googleSheet = new GoogleSheetConnector({
-			apiKey: this.props.apiKey,
-			clientId: this.props.clientId,
-			spreadsheetId: this.props.spreadsheetId
-		}, function() {
+
+var ReactGoogleSheets = exports.ReactGoogleSheets = function (_Component) {
+	_inherits(ReactGoogleSheets, _Component);
+
+	function ReactGoogleSheets() {
+		_classCallCheck(this, ReactGoogleSheets);
+
+		return _possibleConstructorReturn(this, (ReactGoogleSheets.__proto__ || Object.getPrototypeOf(ReactGoogleSheets)).apply(this, arguments));
+	}
+
+	_createClass(ReactGoogleSheets, [{
+		key: 'componentDidMount',
+		value: function componentDidMount() {
+			googleSheet = new _googleSheetConnector2.default({
+				apiKey: this.props.apiKey,
+				clientId: this.props.clientId,
+				spreadsheetId: this.props.spreadsheetId
+			}, function () {
 				this.props.afterLoading();
-		}.bind(this));
-	}
-	render() {
-		return this.props.children || null
-	}
-}
+			}.bind(this));
+		}
+	}, {
+		key: 'render',
+		value: function render() {
+			return this.props.children || null;
+		}
+	}]);
 
-export const connectToSpreadsheet = function(component) {
-	return function(props) {
-			var newProps = {
-					getSheetsData: function(sheetName) {
-							return googleSheet.getSheetsData(sheetName);
-					},
-					updateCell: function(column, row, value, successCallback, errorCallback) {
-						return googleSheet.updateCell(column, row, value, successCallback, errorCallback);
-					},
-			};
+	return ReactGoogleSheets;
+}(_react.Component);
 
-			for (var i in props) {
-					newProps[i] = props[i];
+var connectToSpreadsheet = exports.connectToSpreadsheet = function connectToSpreadsheet(component) {
+	return function (props) {
+		var newProps = {
+			getSheetsData: function getSheetsData(sheetName) {
+				return googleSheet.getSheetsData(sheetName);
+			},
+			updateCell: function updateCell(sheetName, column, row, value, successCallback, errorCallback) {
+				return googleSheet.updateCell(sheetName, column, row, value, successCallback, errorCallback);
 			}
+		};
 
-			return React.createElement(component, newProps);
+		for (var i in props) {
+			newProps[i] = props[i];
+		}
+
+		return _react2.default.createElement(component, newProps);
 	};
 };
 
-export default ReactGoogleSheets;
+exports.default = ReactGoogleSheets;
